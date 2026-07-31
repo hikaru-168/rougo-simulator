@@ -824,7 +824,7 @@ function renderRescue() {
   // ② 65歳で退職せず働き続ける（積立期間を延ばす）
   if (c.age < 70 && c.endAge > 70) {
     const sy2 = 70 - c.age;
-    const dy2 = endAge - 70;
+    const dy2 = c.endAge - 70;
     const total3 = totalNeeded(c.gap, sy2, dy2, inflRate);
     const p5c = pmtNeeded(total3, c.genzai, 5, sy2);
     html += `
