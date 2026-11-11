@@ -192,15 +192,20 @@
     letter-spacing:.2em;
     text-indent:.2em;
     color:#fff;
-    background:var(--ink);
+    background:var(--sage-deep);
     border:none;
     border-radius:9999px;
     cursor:pointer;
-    box-shadow:0 6px 18px rgba(28,28,28,.18);
-    transition:transform .15s,box-shadow .15s;
+    position:relative;
+    padding-inline:58px;
+    box-shadow:0 6px 18px rgba(74,125,118,.28);
+    transition:transform .15s,box-shadow .15s,background-color .15s;
     -webkit-tap-highlight-color:transparent;
   }
-  .btn:active{transform:translateY(2px);box-shadow:0 2px 6px rgba(28,28,28,.18);}
+  /* ブログのボタンと同じ：右端に白い丸の矢印 */
+  .btn::after{content:"";position:absolute;right:10px;top:50%;width:38px;height:38px;margin-top:-19px;border-radius:50%;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a7d76' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center / 18px no-repeat;}
+  .btn:active{transform:translateY(2px);box-shadow:0 2px 6px rgba(74,125,118,.25);background-color:#3f6c66;}
+  @media (hover:hover){.btn:hover{background-color:#3f6c66;}}
   /* ---------- 積み上げバー ---------- */
   .stack-label{font-size:12px;margin-top:16px;color:var(--sub);letter-spacing:.04em;}
   .stack{
@@ -463,7 +468,7 @@
   .rescue-item .r-title{font-size:13.5px;}
   .rescue-item .r-body{margin-top:4px;color:var(--sub);}
   .rescue-item .r-num{display:block;font-family:var(--latin);font-size:22px;font-weight:400;color:var(--terra);line-height:1.4;margin-top:2px;letter-spacing:.01em;}
-  .rescue-item .r-num small{font-family:var(--gothic);font-size:12px;color:var(--ink);margin-left:4px;font-weight:400;}
+  .rescue-item .r-num small{display:inline-block;white-space:nowrap;font-family:var(--gothic);font-size:12px;color:var(--ink);margin-left:4px;font-weight:400;}
   /* グラフの凡例 */
   .chart-legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:11px;color:var(--sub);}
   .chart-legend span{display:inline-flex;align-items:center;gap:6px;}
@@ -471,7 +476,60 @@
   .chart-legend i.p{border-top:1.5px dashed #bdb7ae;}
   .chart-legend i.t{border-top:1.5px dashed var(--terra);}
   .hidden{display:none;}
+
+  /* ---------- モーション（ブログと同じ動き。html.motion のときだけ・計算には関係なし） ---------- */
+  :root{--ease:cubic-bezier(.2,.7,.2,1);}
+  @keyframes fade-up{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:none;}}
+  @keyframes pop{0%{transform:scale(.4);}70%{transform:scale(1.12);}100%{transform:scale(1);}}
+  @keyframes ring{0%{box-shadow:0 0 0 0 rgba(129,180,173,.55);}100%{box-shadow:0 0 0 14px rgba(129,180,173,0);}}
+  @keyframes line-grow{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+  @keyframes wipe{from{clip-path:inset(0 100% 0 0);}to{clip-path:inset(0 0 0 0);}}
+  @keyframes nudge{0%,60%,100%{transform:none;}30%{transform:translateX(4px);}}
+  .motion .btn::after{animation:nudge 1.8s ease-in-out infinite;}
+  /* ヘッダー：ふわっと順番に。道のりは線が伸びて、アイコンがぽんっと出る */
+  .motion header > *{animation:fade-up .9s var(--ease) both;}
+  .motion header > :nth-child(2){animation-delay:.15s;}
+  .motion header > :nth-child(3){animation-delay:.3s;}
+  .motion header > :nth-child(n+4){animation-delay:.45s;}
+  .motion .road::before{transform-origin:left center;animation:line-grow 1.2s var(--ease) .6s both;}
+  .motion .road .ic{animation:pop .55s var(--ease) both;}
+  .motion .road .mile:nth-child(1) .ic{animation-delay:.6s;}
+  .motion .road .mile:nth-child(2) .ic{animation-delay:.8s;}
+  .motion .road .mile:nth-child(3) .ic{animation-delay:1s;}
+  .motion .road .mile:nth-child(4) .ic{animation-delay:1.2s;}
+  .motion .road .mile:nth-child(5) .ic{animation-delay:1.4s;}
+  .motion .road .mile.goal .ic{animation:pop .55s var(--ease) both,ring 1s ease-out 2s 2;}
+  .motion .road .mile:nth-child(3).goal .ic{animation-delay:1s,1.8s;}
+  .motion .road .mile:nth-child(5).goal .ic{animation-delay:1.4s,2.2s;}
+  /* 基本：スクロールで下から出てくる */
+  .motion .rv{opacity:0;transform:translateY(36px);transition:opacity .8s var(--ease),transform .8s var(--ease);}
+  .motion .rv.in{opacity:1;transform:none;}
+  /* まとまり（カード）は1つずつ順番に */
+  .motion .stagger.rv{opacity:1;transform:none;}
+  .motion .stagger > *{opacity:0;transform:translateY(30px) scale(.94);transition:opacity .7s var(--ease),transform .7s var(--ease);}
+  .motion .stagger.in > *{opacity:1;transform:none;}
+  .motion .stagger.in > :nth-child(2){transition-delay:.14s;}
+  .motion .stagger.in > :nth-child(3){transition-delay:.28s;}
+  .motion .stagger.in > :nth-child(4){transition-delay:.42s;}
+  .motion .stagger.in > :nth-child(n+5){transition-delay:.56s;}
+  /* 3ステップの図：アイコンが順にぽんっと */
+  .motion .flow.in .st .ic{animation:pop .55s var(--ease) both;}
+  .motion .flow.in .st:nth-child(1) .ic{animation-delay:.2s;}
+  .motion .flow.in .st:nth-child(3) .ic{animation-delay:.45s;}
+  .motion .flow.in .st:nth-child(5) .ic{animation-delay:.7s;}
+  /* 結果：バーは左から伸びる、グラフは左から描かれる、合計は光る */
+  .motion .rv.in .save-bar,.motion .rv.in .stack > div{animation:wipe 1s var(--ease) .25s both;}
+  .motion #chart.in{animation:wipe 1.6s var(--ease) .2s both;}
+  .motion .total-area.in .big{animation:pop .7s var(--ease) both;}
+  /* ひかるの吹き出しはぽんっと */
+  .motion .talk.rv{transform:none;}
+  .motion .talk .bubble{transform:scale(.6);transform-origin:left center;opacity:0;transition:transform .5s cubic-bezier(.3,1.6,.5,1) .25s,opacity .3s ease .25s;}
+  .motion .talk.in .bubble{transform:none;opacity:1;}
 </style>
+<script>
+  /* 動きを減らす設定の人には動かさない */
+  if (window.requestAnimationFrame && window.matchMedia && !matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
+</script>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3"/><path d="M3.5 19c.6-3 2.8-4.5 5.5-4.5s4.9 1.5 5.5 4.5"/><circle cx="16.5" cy="9.5" r="2.5"/><path d="M15.5 14.6c2.3.2 4.1 1.6 4.6 4.4"/></symbol><symbol id="i-coin" viewBox="0 0 24 24"><ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7"/><path d="M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/></symbol><symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4M6 4.5h11l-2 3.5 2 3.5H6"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2"/></symbol><symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol><symbol id="i-house" viewBox="0 0 24 24"><path d="M4 11l8-6.5 8 6.5M6 9.5V20h12V9.5"/><path d="M10 20v-5h4v5"/></symbol><symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4 7.5h14a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 7.5L15 4v3.5M15.5 13.5h1.5"/></symbol><symbol id="i-sprout" viewBox="0 0 24 24"><path d="M12 20v-8"/><path d="M12 12c0-4 2.5-6.5 7-6.5 0 4.5-2.5 7-7 6.5zM12 14c0-3-2-5-5.5-5 0 3.5 2 5.5 5.5 5z"/></symbol><symbol id="i-gift" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M3 9h18M12 9v11M12 9c-1.5-3-5-3.5-5-1.5S10 9 12 9zM12 9c1.5-3 5-3.5 5-1.5S14 9 12 9z"/></symbol><symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V5c-3-.5-6 0-8 1.5zM12 6.5v13"/></symbol><symbol id="i-bank" viewBox="0 0 24 24"><path d="M3.5 9.5L12 4.5l8.5 5M5 9.5h14M6.5 12v5M10 12v5M14 12v5M17.5 12v5M4 20h16"/></symbol><symbol id="i-pen" viewBox="0 0 24 24"><path d="M5 19h4L19 9l-4-4L5 15z"/><path d="M13 7l4 4"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4M11 14.5h4.5M13.5 12.5l2 2-2 2"/></symbol><symbol id="i-down" viewBox="0 0 24 24"><path d="M3.5 6.5l6 6 4-4 7 7"/><path d="M20.5 11v4.5H16"/></symbol><symbol id="i-trend" viewBox="0 0 24 24"><path d="M3.5 17.5l6-6 4 4 7-7"/><path d="M15.5 8.5h5v5"/></symbol><symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8"/></symbol><symbol id="i-blocks" viewBox="0 0 24 24"><rect x="4" y="12.5" width="7" height="7" rx="1.2"/><rect x="13" y="12.5" width="7" height="7" rx="1.2"/><rect x="8.5" y="4.5" width="7" height="7" rx="1.2"/></symbol><symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 10a6 6 0 0 1 12 0v9a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 19z"/><path d="M6 12.5h12M12 12.5v3"/><path d="M9.5 4.8V3.5h5v1.3"/></symbol><symbol id="i-cap" viewBox="0 0 24 24"><path d="M2.5 9.5L12 5l9.5 4.5L12 14z"/><path d="M6.5 11.6V16c1.5 1.4 3.5 2 5.5 2s4-.6 5.5-2v-4.4M21.5 9.5v5"/></symbol><symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5v-2h6v2M3.5 12.5h17"/></symbol><symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M7 3.5h10M7 20.5h10"/><path d="M8 3.5c0 5 8 5 8 8.5s-8 3.5-8 8.5M16 3.5c0 5-8 5-8 8.5s8 3.5 8 8.5"/></symbol><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/></symbol></svg>
@@ -488,26 +546,32 @@
   <!-- 導入 -->
   <section>
     <p class="lead">
-      「老後2,000万円」は、家庭で全然違う🤔<br>
-      3ステップで<strong>あなたの必要額</strong>と<br>
-      <strong>毎月の積立額</strong>がわかるよ☺️
+      「老後は2,000万円必要」ってよく聞くけど<br>
+      実は家庭によって全然違うんだよね🤔<br>
+      <br>
+      このシミュレーターでは<br>
+      ☑︎ <strong>あなたの場合いくら必要か</strong><br>
+      ☑︎ <strong>毎月いくら積み立てればいいか</strong><br>
+      <br>
+      がたった3ステップで計算できちゃうよ☺️<br>
+      数字はざっくりでOK！
     </p>
     <div class="flow"><div class="st"><div class="ic"><svg class="i" aria-hidden="true"><use href="#i-house"/></svg></div><b>STEP 1</b>生活費</div><div class="ar"><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></div><div class="st"><div class="ic"><svg class="i" aria-hidden="true"><use href="#i-coin"/></svg></div><b>STEP 2</b>入るお金</div><div class="ar"><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></div><div class="st"><div class="ic"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg></div><b>STEP 3</b>あなたのこと</div></div>
-    <p class="safe"><svg class="i" aria-hidden="true"><use href="#i-lock"/></svg>入力した数字は、どこにも送信されないよ</p>
+    <p class="safe"><svg class="i" aria-hidden="true"><use href="#i-lock"/></svg><span>入力した数字はこのスマホの中だけで計算されて、<br>どこにも送信されないから安心してね。</span></p>
   </section>
 
   <!-- STEP1 -->
   <section>
     <div class="sec-label">step 1</div>
     <h2>老後の生活費、月いくらで暮らしたい？</h2>
-    <p class="lead sm">今の生活費をもとに、ざっくりでOK！</p>
+    <p class="lead sm">今の生活費をもとに考えるのがコツ！</p>
     <div class="chips">
-      <div class="chip down"><svg class="i" aria-hidden="true"><use href="#i-down"/></svg><span>ローン完済・子どもの独立で<b>減る</b></span></div>
-      <div class="chip up"><svg class="i" aria-hidden="true"><use href="#i-trend"/></svg><span>旅行・趣味を楽しむなら<b>増える</b></span></div>
+      <div class="chip down"><svg class="i" aria-hidden="true"><use href="#i-down"/></svg><span>ローンが終わったり子どもが独立すると<b>減る</b></span></div>
+      <div class="chip up"><svg class="i" aria-hidden="true"><use href="#i-trend"/></svg><span>旅行や趣味を楽しみたいなら<b>増える</b></span></div>
     </div>
+    <p class="lead sm" style="margin-top:12px;">ざっくりのイメージでOK！</p>
     <div class="field">
-      <label><svg class="i li" aria-hidden="true"><use href="#i-house"/></svg>老後の理想の生活費</label>
-      <span class="hint">夫婦なら2人の合計で</span>
+      <label><svg class="i li" aria-hidden="true"><use href="#i-house"/></svg>老後の理想の生活費（夫婦または自分の合計）</label>
       <div class="inputrow"><input type="number" id="in-seikatsu" inputmode="numeric" placeholder="25"><span class="unit">万円／月</span></div>
     </div>
   </section>
@@ -518,12 +582,12 @@
     <h2>老後に入ってくるお金は？</h2>
     <div class="field">
       <label><svg class="i li" aria-hidden="true"><use href="#i-bank"/></svg>年金の見込み額（世帯の合計）</label>
-      <span class="hint">ねんきん定期便で確認できるよ<br>わからなければ会社員1人月10〜15万円が目安</span>
+      <span class="hint">ねんきんネットやねんきん定期便で確認できるよ！<br>わからなければ会社員は1人あたり月10〜15万円が目安</span>
       <div class="inputrow"><input type="number" id="in-nenkin" inputmode="numeric" placeholder="15"><span class="unit">万円／月</span></div>
     </div>
     <div class="field">
-      <label><svg class="i li" aria-hidden="true"><use href="#i-briefcase"/></svg>老後も働いて稼ぐ金額</label>
-      <span class="hint">なければ0。月数万円だけ働く、もアリ</span>
+      <label><svg class="i li" aria-hidden="true"><use href="#i-briefcase"/></svg>老後も働いて稼ぐ予定の金額（なければ0）</label>
+      <span class="hint">好きな仕事で月数万円だけ働く、もアリ</span>
       <div class="inputrow"><input type="number" id="in-rodo" inputmode="numeric" placeholder="0"><span class="unit">万円／月</span></div>
     </div>
   </section>
@@ -537,13 +601,13 @@
       <div class="inputrow"><input type="number" id="in-age" inputmode="numeric" placeholder="34"><span class="unit">歳</span></div>
     </div>
     <div class="field">
-      <label><svg class="i li" aria-hidden="true"><use href="#i-coin"/></svg>いま貯まっている老後用のお金</label>
-      <span class="hint">貯金・投資の合計。なければ0</span>
+      <label><svg class="i li" aria-hidden="true"><use href="#i-coin"/></svg>いま貯まっている老後用のお金（なければ0）</label>
+      <span class="hint">老後のために取っておくつもりの貯金・投資の合計</span>
       <div class="inputrow"><input type="number" id="in-genzai" inputmode="numeric" placeholder="0"><span class="unit">万円</span></div>
     </div>
     <div class="field">
       <label><svg class="i li" aria-hidden="true"><use href="#i-sun"/></svg>何歳まで生きる想定で備える？</label>
-      <span class="hint">2パターンで比べよう<br>平均寿命は男性81歳・女性87歳</span>
+      <span class="hint">2パターン入れて比べてみよう！<br>日本人の平均寿命は男性81歳・女性87歳だよ</span>
       <div class="pattern-inputs">
         <div class="pattern-input">
           <div class="pattern-label-badge">パターン A</div>
@@ -557,7 +621,7 @@
     </div>
     <div class="field">
       <label><svg class="i li" aria-hidden="true"><use href="#i-trend"/></svg>物価上昇（インフレ）はどう見る？</label>
-      <span class="hint">日本銀行の目標は年2%だよ</span>
+      <span class="hint">物価が毎年上がっていく分も計算に入れてくれるよ！<br>日本銀行が目指している年2%の上昇率が基準だよ</span>
       <div class="seg" id="inflSeg">
         <button data-infl="0">考慮しない</button>
         <button data-infl="1" class="active">年1%</button>
@@ -579,9 +643,7 @@
     <div class="sec-label">result 1</div>
     <h2>老後の家計、こうなる予想</h2>
     <div id="gapBody"></div>
-    <details class="more"><summary>計算の前提</summary>
-      <p class="note">※65歳以降の家計を今の物価でイメージした計算だよ。<br>年金額や働き方によって変わるから、目安として使ってね。</p>
-    </details>
+    <p class="note">※65歳以降の家計を今の物価でイメージした計算だよ。<br>年金額や働き方によって変わるから、目安として使ってね。</p>
   </section>
 
   <!-- 結果B：必要総額 -->
@@ -602,19 +664,16 @@
     <p class="lead sm" id="saveLead"></p>
     <div id="saveRows"></div>
     <div class="save-diff" id="saveDiff"></div>
-    <p class="note">※利回りは保証されないよ。最終判断は自分でしてね。</p>
-    <details class="more"><summary>計算の前提</summary>
-      <p class="note">※毎月同じ金額を65歳まで積み立てた場合の計算だよ。<br>利回りは保証されるものじゃなく、値下がりすることもある。</p>
-    </details>
+    <p class="note">※毎月同じ金額を65歳まで積み立てた場合の計算だよ。<br>利回りは保証されるものじゃなく、値下がりすることもある。<br>投資の最終判断はぜひ自分でしてね。</p>
   </section>
 
   <!-- 結果C'：救済策 -->
   <section class="hidden" id="rescueSec">
     <div class="sec-label">plan b</div>
     <h2>「その積立、キツすぎ…」と思ったら</h2>
-    <p class="lead sm">大丈夫、打つ手は1つじゃないよ😊</p>
+    <p class="lead sm">大丈夫、打つ手は1つじゃないよ😊<br>組み合わせれば月の負担はぐっと軽くなる！</p>
     <div id="rescueBody"></div>
-    <p class="note">※金額はすべて計算例。数字を変えて試してみてね</p>
+    <p class="note">※金額はすべて計算例。<br>老後計画は「生活費に始まり生活費に終わる」だから、<br>数字を変えながら自分に合うバランスを探してみてね！</p>
   </section>
 
   <!-- 結果D：グラフ -->
@@ -634,11 +693,13 @@
     <div class="talk">
       <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAYABgAAD/4QDSRXhpZgAATU0AKgAAAAgABgEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAExAAIAAAAyAAAAZgE7AAIAAAAHAAAAmIdpAAQAAAABAAAAoAAAAAAAAABgAAAAAQAAAGAAAAABQ2FudmEgKFJlbmRlcmVyKSBkb2M9REFHY0VHSjhJTWsgdXNlcj1VQUZTclBtbm1lTQBIaWthcnUAAAADoAEAAwAAAAEAAQAAoAIABAAAAAEAAADwoAMABAAAAAEAAADwAAAAAP/hCnRodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDYuMC4wIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcDpDcmVhdG9yVG9vbD0iQ2FudmEgKFJlbmRlcmVyKSBkb2M9REFHY0VHSjhJTWsgdXNlcj1VQUZTclBtbm1lTSI+IDxkYzpjcmVhdG9yPiA8cmRmOlNlcT4gPHJkZjpsaT5IaWthcnU8L3JkZjpsaT4gPC9yZGY6U2VxPiA8L2RjOmNyZWF0b3I+IDxkYzp0aXRsZT4gPHJkZjpBbHQ+IDxyZGY6bGkgeG1sOmxhbmc9IngtZGVmYXVsdCI+44Gy44GL44KLIC0gMTwvcmRmOmxpPiA8L3JkZjpBbHQ+IDwvZGM6dGl0bGU+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDw/eHBhY2tldCBlbmQ9InciPz4A/+0AZFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAAsHAFaAAMbJUccAgAAAgACHAIFAA3jgbLjgYvjgosgLSAxHAJQAAZIaWthcnU4QklNBCUAAAAAABAijgNUO3tWtEF20PqOyC4u/8AAEQgA8ADwAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/bAEMAAgICAgICAwICAwUDAwMFBgUFBQUGCAYGBgYGCAoICAgICAgKCgoKCgoKCgwMDAwMDA4ODg4ODw8PDw8PDw8PD//bAEMBAgICBAQEBwQEBxALCQsQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ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" alt="ひかる">
       <div class="bubble">
-        老後のお金って、<br>
-        わからないと不安だよね😭<br>
-        自分も数字にしたら<br>
+        老後っていくら必要なのか、<br>
+        よくわからないから不安だよね😭<br>
+        自分もずっとそうだったけど、<br>
+        数字にしたら<br>
         めっちゃ気持ちが楽になったよ😌<br>
-        わからないことはDMしてね😊
+        ぜひ使ってみて！<br>
+        わからないことがあればDMしてね😊
       </div>
     </div>
     <a class="cta" href="https://www.instagram.com/hikaru_money__/" target="_blank" rel="noopener">ひかるのInstagramはこちら</a>
@@ -820,7 +881,7 @@ function renderGap() {
       <span class="l-nenkin">年金</span>
       <span class="l-fusoku">足りない分＝自分で準備するお金</span>
     </div>
-    <p class="lead" style="margin-top:14px;">毎月<b style="color:var(--terra);">${man(c.gap * 10) / 10}万円</b>が、<br>自分で準備する分だよ💪</p>`;
+    <p class="lead" style="margin-top:14px;">毎月<b style="color:var(--terra);">${man(c.gap * 10) / 10}万円</b>が、<br>自分の貯金や投資で準備していく部分だよ💪</p>`;
 }
 
 /* ----- 結果B：必要総額 ----- */
@@ -835,7 +896,7 @@ function renderTotal() {
       : `不足が出ない計算のため、目安は0円。ゆとり資金は自由に設定してみてね`;
   const inflEl = document.getElementById("totalInfl");
   if (c.gap > 0 && inflRate > 0) {
-    inflEl.innerHTML = `物価の上昇（年${inflRate}%）込みの金額📈<br>今の物価だと約${man(c.totalReal)}万円分`;
+    inflEl.innerHTML = `物価が毎年${inflRate}%上がる前提を<br>織り込んだ金額だよ📈<br>（今の物価で言うと約${man(c.totalReal)}万円分の暮らし）`;
     inflEl.classList.remove("hidden");
   } else {
     inflEl.classList.add("hidden");
@@ -862,7 +923,7 @@ function renderSave() {
     return;
   }
 
-  lead.innerHTML = `65歳まであと<b>${c.saveYears}年</b>。<br>${c.genzai > 0 ? `いまの<b>${man(c.genzai)}万円</b>＋` : ""}毎月の積立で<b>${man(c.total)}万円</b>を目指すと…`;
+  lead.innerHTML = `65歳まであと<b>${c.saveYears}年</b>。<br>${c.genzai > 0 ? `いま貯まっている<b>${man(c.genzai)}万円</b>と、` : ""}毎月の積立で目標の<b>${man(c.total)}万円</b>を目指すとしたら…`;
 
   const p0 = pmtNeeded(c.total, c.genzai, 0, c.saveYears);
   const p3 = pmtNeeded(c.total, c.genzai, 3, c.saveYears);
@@ -883,12 +944,12 @@ function renderSave() {
   }
 
   rows.innerHTML =
-    row("b0", "貯金だけ", "", p0) +
-    row("b3", "年3%で運用", "", p3) +
-    row("b5", "年5%で運用", "おすすめの考え方", p5);
+    row("b0", "貯金だけで貯める", "", p0) +
+    row("b3", "年3%で運用しながら積み立てる", "", p3) +
+    row("b5", "年5%で運用しながら積み立てる", "おすすめの考え方", p5);
 
   const saveDiffYen = (p0 - p5) * 10000;
-  diff.innerHTML = `年5%運用なら、貯金だけより<br>月<b>${yen(saveDiffYen)}</b>軽くなる計算！`;
+  diff.innerHTML = `同じ目標でも、年5%運用なら貯金だけより月<b>${yen(saveDiffYen)}</b>も軽くなる計算！<br>これが「お金にも働いてもらう」ってことだよ。`;
 }
 
 /* ----- 結果C'：救済策（積立が非現実的なとき） ----- */
@@ -915,17 +976,18 @@ function renderRescue() {
     const p5b = c.saveYears > 0 ? pmtNeeded(total2, c.genzai, 5, c.saveYears) : null;
     let effect;
     if (gap2 <= 0) {
-      effect = `不足がほぼなくなる計算だよ</div>`;
+      effect = `不足がほぼ解消される計算だよ。</div>`;
     } else if (p5b !== null) {
-      effect = `積立（年5%）は</div><span class="r-num">月${yen(p5b * 10000)}<small>まで軽くなる</small></span>`;
+      effect = `毎月の積立（年5%の場合）は</div><span class="r-num">月${yen(p5b * 10000)}<small>まで軽くなる計算だよ</small></span>`;
     } else {
-      effect = `必要額が</div><span class="r-num">約${man(c.total - total2)}<small>万円 軽くなる</small></span>`;
+      effect = `必要額が</div><span class="r-num">約${man(c.total - total2)}<small>万円 軽くなる計算だよ</small></span>`;
     }
     html += `
       <div class="rescue-item">
         <div class="r-ic"><svg class="i" aria-hidden="true"><use href="#i-briefcase"/></svg></div><div class="r-main">
-        <div class="r-title">老後も好きな仕事で少し働く</div>
-        <div class="r-body">月${workMan}万円だけ働くと、${effect}</div>
+        <div class="r-title">老後も好きな仕事で少しだけ働く</div>
+        <div class="r-body">例えば月${workMan}万円だけ働くと、<br>${effect}
+        <div class="r-body">配当金で月5万円もらうには<br>数千万円必要なのに、<br>「働ける」って実は<br>めっちゃ大きな資産だよね💪</div></div>
       </div>`;
   }
 
@@ -938,9 +1000,9 @@ function renderRescue() {
     html += `
       <div class="rescue-item">
         <div class="r-ic"><svg class="i" aria-hidden="true"><use href="#i-calendar"/></svg></div><div class="r-main">
-        <div class="r-title">70歳まで働いて積み立てる</div>
-        <div class="r-body">積立（年5%）は</div>
-        <span class="r-num">月${yen(p5c * 10000)}<small>まで軽くなる</small></span></div>
+        <div class="r-title">65歳で退職せず、<br>もう少し働き続ける</div>
+        <div class="r-body">70歳まで働いて積立を続けると、<br>積立期間が延びて<br>取り崩しの開始も遅くなるから、<br>積立額（年5%）は</div>
+        <span class="r-num">月${yen(p5c * 10000)}<small>まで軽くなる計算だよ！</small></span></div>
       </div>`;
   }
 
@@ -949,7 +1011,7 @@ function renderRescue() {
     <div class="rescue-item">
       <div class="r-ic"><svg class="i" aria-hidden="true"><use href="#i-hourglass"/></svg></div><div class="r-main">
       <div class="r-title">年金の受け取りを遅らせる</div>
-      <div class="r-body">遅らせるほど月の額が増えるよ。<br>「ねんきんネット」で試算できる😊</div></div>
+      <div class="r-body">年金は受け取りを<br>遅らせるほど月の額が増えるよ！<br>自分の場合いくら増えるかは<br>「ねんきんネット」で<br>試算できるから、<br>一度見てみてね😊</div></div>
     </div>`;
 
   // ④ 老後の生活費を見直す
@@ -958,9 +1020,10 @@ function renderRescue() {
     html += `
       <div class="rescue-item">
         <div class="r-ic"><svg class="i" aria-hidden="true"><use href="#i-down"/></svg></div><div class="r-main">
-        <div class="r-title">生活費を月1万円スリムにする</div>
-        <div class="r-body">必要額が</div>
-        <span class="r-num">約${man(delta)}<small>万円 軽くなる</small></span></div>
+        <div class="r-title">老後の生活費を少しスリムにする</div>
+        <div class="r-body">老後の生活費を月1万円見直すだけで、<br>必要額が</div>
+        <span class="r-num">約${man(delta)}<small>万円も軽くなる計算！</small></span>
+        <div class="r-body">住む場所・車・保険あたりは<br>老後に変えやすい費目だよ。</div></div>
       </div>`;
   }
 
@@ -1035,6 +1098,59 @@ function renderChart() {
   }
   paint();
   new MutationObserver(paint).observe(wrap, {subtree:true, attributes:true, attributeFilter:['class']});
+})();
+</script>
+<script>
+/* スクロールで出てくる・合計のカウントアップ（ブログと同じ動き。表示だけで、計算には関係なし） */
+(function(){
+  if (!document.documentElement.classList.contains('motion')) return;
+  var wrap = document.querySelector('.wrap');
+  ['.split', '.chips', '#rescueBody'].forEach(function(q){
+    var el = document.querySelector(q); if (el) el.classList.add('stagger');
+  });
+  wrap.querySelectorAll(':scope > section > *').forEach(function(el){ el.classList.add('rv'); });
+
+  // 合計の数字：0から数え上がって、最後は計算結果そのものを表示
+  var total = document.getElementById('totalAmount'), mine = null, pending = null;
+  function countUp(target){
+    var to = parseFloat(target.replace(/,/g, '')), t0 = null;
+    if (!isFinite(to)) return;
+    function step(now){
+      if (total.textContent !== mine) return; // 途中で計算し直されたら止める
+      t0 = t0 || now;
+      var k = Math.min((now - t0) / 1400, 1);
+      mine = k < 1 ? Math.round(to * (1 - Math.pow(1 - k, 3))).toLocaleString('ja-JP') : target;
+      total.textContent = mine;
+      if (k < 1) requestAnimationFrame(step);
+    }
+    mine = '0'; total.textContent = mine;
+    requestAnimationFrame(step);
+  }
+  if (total) new MutationObserver(function(){
+    if (total.textContent === mine) return;
+    var area = total.closest('.rv');
+    if (area && area.classList.contains('in')) countUp(total.textContent);
+    else pending = total.textContent;
+  }).observe(total, {childList:true, characterData:true, subtree:true});
+
+  function show(el){
+    el.classList.add('in');
+    if (pending && el.contains(total)) { var t = pending; pending = null; countUp(t); }
+  }
+  var queued = false;
+  function sweep(){
+    queued = false;
+    var line = innerHeight * .88;
+    wrap.querySelectorAll('.rv:not(.in)').forEach(function(el){
+      if (el.offsetParent !== null && el.getBoundingClientRect().top < line) show(el);
+    });
+  }
+  // 描画が止まっている環境でも出てこない部分が残らないよう、少し遅れて必ず1回は確認する
+  function queue(){ if (!queued) { queued = true; requestAnimationFrame(sweep); setTimeout(function(){ if (queued) sweep(); }, 250); } }
+  addEventListener('scroll', queue, {passive:true});
+  addEventListener('resize', queue);
+  new MutationObserver(queue).observe(wrap, {subtree:true, attributes:true, attributeFilter:['class']});
+  sweep();
 })();
 </script>
 </body>
